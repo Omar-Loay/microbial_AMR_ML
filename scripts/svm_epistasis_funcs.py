@@ -41,7 +41,7 @@ def load_json_obj(file_name):
 # -------------------------------------------------------------------------------------------------------
 def remove_key_antibiotic_clusters(X, drug_name):
     drug_clusts = []
-    print drug_name
+    print (drug_name)
     for col in X.columns:
         if ('Cluster551_' in col) and "ethambutol" not in drug_name:
             drug_clusts.append(col)
@@ -68,7 +68,7 @@ def remove_key_antibiotic_clusters(X, drug_name):
         elif "Cluster4486" in col and "4-aminosalicylic_acid" not in drug_name: # Thymidilate synthase
             drug_clusts.append(col)
         
-    print "removing... ", len(drug_clusts) , "clusters"
+    print ("removing... ", len(drug_clusts) , "clusters")
     X.drop(drug_clusts, axis=1, inplace=True)
     return X
 
@@ -83,16 +83,16 @@ def get_target_data(gene_vs_genome_frame, resistance_data, drug_choice):
     '''Takes in all dataframes and returns them in a usable form.
         Also, the training set is balanced for susceptible and resistance strains'''
     all_strain_data = list(gene_vs_genome_frame.index)
-    drug_strain_subset = resistance_data.ix[all_strain_data]
+    drug_strain_subset = resistance_data.loc[all_strain_data]
     suscept_samples = list(drug_strain_subset[drug_strain_subset.loc[:, drug_choice] == "S"].index)
     resist_samples= list(drug_strain_subset[drug_strain_subset.loc[:, drug_choice] == "R"].index)
     list_of_random_items = suscept_samples + resist_samples
-    print "S:", len(suscept_samples), "| R:", len(resist_samples)
+    print ("S:", len(suscept_samples), "| R:", len(resist_samples))
     # Add the base model!!
     if "83332.12" not in list_of_random_items:
         list_of_random_items.append('83332.12')
     # Get labeled test data - specifically for isoniazid.
-    drug_target = resistance_data.ix[list_of_random_items, drug_choice]
+    drug_target = resistance_data.loc[list_of_random_items, drug_choice]
     # Remove strains that were not tested on the drug - have NaN
     drug_target.reset_index()
     drug_target_no_NaN = drug_target.reset_index().dropna().set_index('genome_id')
@@ -188,7 +188,7 @@ def clster_identifier_func(clster_manual_map, sim_all_df_T, clust_to_rv, rv_to_n
             if rv_id != None:
                 rv_list.append(rv_id)
             else:
-                print "miss", clster_name
+                print( "miss", clster_name)
                 
     return clster_to_IDENTIFIER, rv_list
 
@@ -255,7 +255,7 @@ def svm_top_weights_colormap(sim_all_df_T, clster_to_IDENTIFIER, top_num, X1, y1
             allele_to_colormap.append(sns.diverging_palette(250, 10, sep=60, n=100)[int(allele_r_percent*100-1)])
 
         except:
-            print allele,drug_name,"ZeroDivisionError: float division by zero"
+            print (allele,drug_name,"ZeroDivisionError: float division by zero")
     
     return sim_all_df_Prod, allele_to_colormap, clust_alleles
 
@@ -265,9 +265,9 @@ def get_MDR_training(resistance_data, data_to_plot, MDR_or_XDR):
     # MDR
     resist_type = resistance_data.apply(lambda x: drug_resist_type(x) , axis=1)
 
-    print "# RR", len(resist_type[resist_type=="RR"].index)
-    print "# MDR", len(resist_type[resist_type=="MDR"].index)
-    print "# XDR", len(resist_type[resist_type=="XDR"].index)
+    print ("# RR", len(resist_type[resist_type=="RR"].index))
+    print ("# MDR", len(resist_type[resist_type=="MDR"].index))
+    print ("# XDR", len(resist_type[resist_type=="XDR"].index))
 
     resist_type[resist_type=="Susceptible"] = 0
     resist_type[resist_type=="RR"] = 0
@@ -278,13 +278,13 @@ def get_MDR_training(resistance_data, data_to_plot, MDR_or_XDR):
         resist_type[resist_type=="MDR"] = 1
         resist_type[resist_type=="XDR"] = 1
     # resist_type[resist_type<1] = 0
-    print "number of ",MDR_or_XDR," ",resist_type.sum()
+    print ("number of ",MDR_or_XDR," ",resist_type.sum())
 
     shared_strains = set(list(data_to_plot.index)).intersection(set(resist_type.index))
-    print "number of strains available for classification",len(shared_strains)
+    print ("number of strains available for classification",len(shared_strains))
 
     y_MDR = resist_type[list(shared_strains)]
-    print y_MDR.sum()
+    print (y_MDR.sum())
 
     X = data_to_plot.loc[shared_strains, :].copy()
     y = y_MDR.fillna(0).copy()
@@ -324,7 +324,7 @@ def explain_cluster_AMR(clust_explain, All_or_OutDf, y_drug, X_alleles, cl_vr_df
         clst_alleles = [x for x in list(set(fin_vr_list)) if clust_explain in x]
     
     if verbose_out==True:
-        print clst_alleles
+        print (clst_alleles)
     allele_df = X_alleles.copy()[clst_alleles]
     
     suscept_y = y_drug[y_drug==0].copy()
@@ -338,11 +338,11 @@ def explain_cluster_AMR(clust_explain, All_or_OutDf, y_drug, X_alleles, cl_vr_df
     for allele in resist_alleles.columns:
         try:
             if verbose_out==True:
-                print allele,"|| # of strains =",allele_df[allele].sum(),"|| # of R =",resist_alleles[allele].sum(),
-                print "|| R% =",round(resist_alleles[allele].sum()/float(allele_df[allele].sum()),2), ",",
-                print str(resist_alleles[allele].sum())+"/"+str(round(float(allele_df[allele].sum()),2)),
-                print "|| S% =",round(suscept_alleles[allele].sum()/float(allele_df[allele].sum()), 2), ",",
-                print str(suscept_alleles[allele].sum())+"/"+str(round(float(allele_df[allele].sum()),2))
+                print (allele,"|| # of strains =",allele_df[allele].sum(),"|| # of R =",resist_alleles[allele].sum())
+                print ("|| R% =",round(resist_alleles[allele].sum()/float(allele_df[allele].sum()),2), ",")
+                print (str(resist_alleles[allele].sum())+"/"+str(round(float(allele_df[allele].sum()),2)))
+                print ("|| S% =",round(suscept_alleles[allele].sum()/float(allele_df[allele].sum()), 2), ",")
+                print (str(suscept_alleles[allele].sum())+"/"+str(round(float(allele_df[allele].sum()),2)))
 
             resist_string = str(int(resist_alleles[allele].sum()))+"/"+str(int(allele_df[allele].sum()))
             resist_string = "("+resist_string +")"+ ": " + str(round(resist_alleles[allele].sum()/float(allele_df[allele].sum()),2))
@@ -350,7 +350,7 @@ def explain_cluster_AMR(clust_explain, All_or_OutDf, y_drug, X_alleles, cl_vr_df
             allele_to_resistString_dict.update({allele: resist_string})
             allele_to_resistPercent_dict.update({allele: round(resist_alleles[allele].sum()/float(allele_df[allele].sum()),2)})
         except:
-            print allele,"ZeroDivisionError: float division by zero"
+            print (allele,"ZeroDivisionError: float division by zero")
         
     return allele_to_resistString_dict, allele_to_resistPercent_dict
 
@@ -377,7 +377,7 @@ def explain_TWOcluster_AMR(clust_explain_1, clust_explain_2, All_or_OutDf, y_dru
     double_allele_resist_dict = {}
     double_allele_resistPercent_dict = {}
     if verbose_out == True:
-        print clst_alleles_1
+        print (clst_alleles_1)
     
     for allele_1 in clst_alleles_1:
         double_allele_resist_dict.update({allele_1: {}})
@@ -397,10 +397,10 @@ def explain_TWOcluster_AMR(clust_explain_1, clust_explain_2, All_or_OutDf, y_dru
                 if resist_strain_num < 1:
                     if all_strain_num>0:
                         if verbose_out==True:
-                            print allele_1, allele_2, 
-                            print "| # of strains = ", all_strain_num, 
-                            print "| # of R = ", resist_strain_num,
-                            print "| %R: ", "0.0"
+                            print (allele_1, allele_2) 
+                            print ("| # of strains = ", all_strain_num)
+                            print ("| # of R = ", resist_strain_num)
+                            print ("| %R: ", "0.0")
                         entry_string = "("+str(all_strain_num)+"/"+str(resist_strain_num)+")"+": 0.0"
                         double_allele_resist_dict[allele_1].update({allele_2: entry_string})
                     double_allele_resist_dict[allele_1].update({allele_2: "-"})
@@ -408,15 +408,15 @@ def explain_TWOcluster_AMR(clust_explain_1, clust_explain_2, All_or_OutDf, y_dru
                 else:
                     resist_percent = round(resist_strain_num/float(all_strain_num),2)
                     if verbose_out==True:
-                        print allele_1, allele_2, 
-                        print "| # of strains = ", all_strain_num, 
-                        print "| # of R = ", resist_strain_num,
-                        print "| %R: ", resist_percent
+                        print (allele_1, allele_2) 
+                        print ("| # of strains = ", all_strain_num) 
+                        print ("| # of R = ", resist_strain_num)
+                        print ("| %R: ", resist_percent)
                     entry_string = "("+str(resist_strain_num)+"/"+str(all_strain_num)+")"+": "+str(resist_percent)
                     double_allele_resist_dict[allele_1].update({allele_2: entry_string})
                     double_allele_resistPercent_dict[allele_1].update({allele_2: resist_percent})
             except:
-                print allele_1, allele_2,"ZeroDivisionError: float division by zero"
+                print (allele_1, allele_2,"ZeroDivisionError: float division by zero")
     return double_allele_resist_dict, double_allele_resistPercent_dict
 
 
@@ -448,7 +448,7 @@ def get_2allele_resist_dataframes(clust1, clust2, drug_name, All_or_OutDf, y1, c
     two_clusterPercent_df = two_clusterPercent_df.append(clust_1percent_df.T)
     
     output = drug_name+"__"+clust1+clust2
-    print output
+    print (output)
 
     writer = pd.ExcelWriter(out_loc+output+".xlsx")
     two_cluster_df.to_excel(writer, sheet_name='resist_fraction', index=True)
