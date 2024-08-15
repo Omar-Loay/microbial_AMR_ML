@@ -102,7 +102,7 @@ def get_target_data(gene_vs_genome_frame, resistance_data, drug_choice):
     gene_vs_genome_frame = gene_vs_genome_frame.loc[:, (gene_vs_genome_frame.sum(axis=0) != len(list(gene_vs_genome_frame.index)))]
     gene_vs_genome_frame = gene_vs_genome_frame.loc[:, (gene_vs_genome_frame.sum(axis=0) != 0)]
     # Get the gene training dataframe + gene testing dataframe... as welll as for synthesis set
-    gene_train = gene_vs_genome_frame.ix[list(drug_target_no_NaN.index), :]
+    gene_train = gene_vs_genome_frame.loc[list(drug_target_no_NaN.index), :]
     # RETURN
     return drug_target_binary, gene_train
 
